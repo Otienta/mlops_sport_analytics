@@ -1,0 +1,31 @@
+# Data
+data/processed/
+*.csv
+*.json
+
+# MLFlow
+mlruns/
+mlartifacts/
+
+# Airflow
+airflow/logs/
+airflow/__pycache__/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Environment
+.env
+.venv
+venv/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+/tmp/
+*.tmp

@@ -1,0 +1,8 @@
+# mlops_sport_analytics/config/config.yaml
+data_dir: 'data/raw/'          # Dossier multiples JSON
+selected_match: null           # Null = tous ; ou '2648661' pour un spécifique
+mlflow_tracking_uri: 'http://localhost:5000'
+openai_key: #  # Remplacez par votre clé
+min_r2_threshold: 0.7  # Pour tests CI
+ollama_model: 'llama3.1:8b'  # Modèle Ollama à utiliser
+ollama_host: 'http://localhost:11434'  # Optional, defaults to this

@@ -1,0 +1,39 @@
+name: MLOps CD Deploy
+on:
+  push:
+    branches: [ main ]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [test]  # Assume ci-pipeline ran (via needs: job from ci)
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt apache-airflow mlflow
+    - name: Run Pipeline & Deploy Model
+      env:
+        MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+        OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
+      run: |
+        # Full run via script (comme ton DAG)
+        python scripts/run_pipeline.py --season 2021 --ci
+        # Get latest run_id
+        RUN_ID=$(mlflow runs list --experiment-id $(mlflow experiments list --output json | jq -r '.experiments[] | select(.name=="sport_impact_v1") | .experiment_id') --output json | jq -r '.[-1].run_id')
+        # Tag prod if R²>0.7
+        R2=$(mlflow runs get --run-id $RUN_ID --output json | jq -r '.data.metrics.test_r2')
+        if (( $(echo "$R2 > 0.7" | bc -l) )); then
+          mlflow models stage -m "runs:/$RUN_ID/random_forest_model" -n prod_model
+          echo "✅ Prod model deployed!"
+        fi
+        # Sync DAG (ex. : SCP to Airflow server ; mock pour local)
+        echo "DAG synced to prod (simulate rsync airflow/dags/ user@airflow-server:/dags/)"
+    - name: Notify Success
+      run: |
+        echo "🎉 Deployment successful - Check MLFlow prod_model!"
+        # Add Slack/Email if needed: uses: 8398a7/action-slack@v3

@@ -1,0 +1,43 @@
+mlops_sport_analytics/
+├── README.md                  # Description du projet, setup, et exécution
+├── requirements.txt           # Dépendances (MLFlow, Airflow, scikit-learn, semantic-kernel, etc.)
+├── .gitignore                 # Ajouté (ignore mlruns, etc.)
+├── data/
+│   ├── raw/                   # Nouveau : Dossier pour multiples JSON
+│   │   └── data_2648661_2024.json  # + autres JSON ici
+│   └── processed/             # Nouveau : Output par match
+│       └── match_2648661.csv  # Ex. : Fichiers CSV nommés par ID match
+├── src/                       # Code source modulaire
+│   ├── data/                  # Module pour EDA et Feature Engineering
+│   │   ├── __init__.py
+│   │   └── process_data.py    # Chargement JSON, EDA, features (ex. : efficacité par possession)
+│   ├── models/                # Module ML
+│   │   ├── __init__.py
+│   │   └── train_model.py     # Entraînement Random Forest, tracking MLFlow
+│   ├── agents/                # Module LLM/Agents
+│   │   ├── __init__.py
+│   │   └── coaching_agent.py  # Agent avec Semantic Kernel + MCP pour rapport
+│   └── pipelines/             # Orchestration Airflow
+│       ├── __init__.py
+│       └── dag_sport_analytics.py  # DAG Airflow : ingestion -> train -> agent
+├── .github/
+│   └── workflows/             
+│       ├── ci-pipeline.yml
+│       ├── cd-deploy.yml      # Deploy (tag MLFlow + sync DAG)
+│       └── ml-model-monitoring.yml
+├── scripts/                   
+│   ├── run_pipeline.py
+│   └── check_model_drift.py
+├── tests/                     # Tests unitaires pour CI
+│   ├── test_data.py           # Tests pour process_data.py
+│   ├── test_model.py          # Tests pour train_model.py
+│   ├── test_pipeline.py
+│   └── test_agent.py          # Tests pour coaching_agent.py
+├── mlruns/                    # Dossier MLFlow (généré auto pour tracking)
+├── airflow/                   # Dossier Airflow (si local ; sinon Docker)
+│   └── dags/                  # Copie du DAG ici
+│       └── sport_analytics_dag.py  # Symlink ou copy
+│── docker-compose.yaml         # Pour Airflow local (optionnel)
+└── config/                    # Configurations
+    └── config.yaml            # Params : paths, thresholds (ex. : R² min=0.7)
+    

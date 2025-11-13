@@ -1,0 +1,38 @@
+name: ML Model Monitoring
+
+on:
+  schedule:
+    - cron: '0 8 * * 1'  # Every Monday at 8 AM
+  workflow_dispatch:  # Permet un déclenchement manuel
+
+jobs:
+  model-monitoring:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install mlflow
+
+    - name: Check model performance
+      run: |
+        python scripts/check_model_drift.py
+
+    - name: Notify on drift
+      if: failure()
+      run: |
+        echo "Model drift detected! Check MLFlow runs."
+        # Ici tu peux ajouter une notification Slack/Email
+        # uses: 8398a7/action-slack@v3
+        # with:
+        #   status: failure
+        #   text: 'Model drift detected in sport analytics pipeline'
